@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  testrunner:
+    build: .
+    environment:
+      SERVICE_B_URI: http://serviceb:8000
+networks:
+  default:
+    name: dreams
