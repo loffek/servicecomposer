@@ -24,15 +24,17 @@ jobs:
             username: $DOCKER_HUB_USER_ID
             password: $DOCKER_HUB_PWD
 
-    working_directory: ~/testrunner
+    working_directory: ~/repo/testrunner
     steps:
       - checkout
+          path: ~/repo
 
       - run:
           name: print dir
           command: |
-            ls .
-            ls ~
+            pwd
+            ls -a .
+            ls -a ~
 
       - restore_cache:
           name: Restore Yarn Package Cache
