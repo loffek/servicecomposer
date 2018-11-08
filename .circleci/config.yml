@@ -18,5 +18,6 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            make test
-
+            docker-compose up -d
+            echo "waiting for cluster to start..."
+            docker-compose -f testrunner/docker-compose.testrunner.yml run testrunner yarn test
