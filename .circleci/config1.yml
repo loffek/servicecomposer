@@ -1,0 +1,24 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.12.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      - run:
+          name: Pull images
+          command: |
+            docker login -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
+            docker pull $DOCKER_HUB_USER_ID/servicea:latest
+            docker pull $DOCKER_HUB_USER_ID/serviceb:latest
+
+      - run:
+          name: Run integration tests
+          command: |
+            docker-compose up -d
+            echo "waiting for cluster to start..."
+            docker-compose -f testrunner/docker-compose.testrunner.yml build
+            docker-compose -f testrunner/docker-compose.testrunner.yml run testrunner yarn test

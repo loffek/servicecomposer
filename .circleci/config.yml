@@ -3,21 +3,54 @@ jobs:
   build:
     docker:
       - image: circleci/node:8.12.0
-    working_directory: ~/repo
+        environment:
+          SERVICE_B_URI: http://serviceb:8000
+
+      - image: loffek/servicea:latest
+        name: servicea
+        environment:
+          PORT: 3000
+        auth:
+            username: $DOCKER_HUB_USER_ID
+            password: $DOCKER_HUB_PWD
+
+      - image: loffek/serviceb:latest
+        name: serviceb
+        environment:
+          SERVICE_A_URL: servicea
+          SERVICE_A_PORT: 3000
+          PORT: 8000
+        auth:
+            username: $DOCKER_HUB_USER_ID
+            password: $DOCKER_HUB_PWD
+
+    working_directory: ~/testrunner
     steps:
       - checkout
-      - setup_remote_docker
+
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+            - yarn-packages-
 
       - run:
-          name: Pull images
+          name: print dir
           command: |
-            docker login -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
-            docker pull $DOCKER_HUB_USER_ID/servicea:latest
-            docker pull $DOCKER_HUB_USER_ID/serviceb:latest
+            ls .
+            ls ~
+
+      - run:
+          name: Install Dependencies
+          command: yarn install
+
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
 
       - run:
           name: Run integration tests
           command: |
-            docker-compose up -d
-            echo "waiting for cluster to start..."
-            docker-compose -f testrunner/docker-compose.testrunner.yml run testrunner yarn test
+            yarn test
