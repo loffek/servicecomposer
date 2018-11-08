@@ -18,6 +18,7 @@ services:
       PORT: 8000
     depends_on:
       - servicea
+    command: bash -c "[[ ${TEST_SERVICE} == serviceb ]] || node main.js"
 
 networks:
   default:
