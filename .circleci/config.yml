@@ -8,9 +8,7 @@ jobs:
 
       - image: loffek/servicea:latest
         name: servicea
-        command: sh -c "[ $TEST_SERVICE = servicea ] && echo \"I am $TEST_SERVICE. Exiting...\" || ( echo \"I am not $TEST_SERVICE\" && ./run.sh )"
         environment:
-          TEST_SERVICE: $TEST_SERVICE
           PORT: 3000
         auth:
             username: $DOCKER_HUB_USER_ID
@@ -18,9 +16,15 @@ jobs:
 
       - image: loffek/serviceb:latest
         name: serviceb
-        command: sh -c "[ $TEST_SERVICE = serviceb ] && echo \"I am $TEST_SERVICE. Exiting...\" || ( echo \"I am not $TEST_SERVICE\" && node main.js )"
+        command: |
+          if [ $TEST_SERVICE = serviceb ]; then
+            echo "I am the $TEST_SERVICE!"
+          else
+            echo "I am not the test service"
+            node main.js
+          fi
         environment:
-          TEST_SERVICE: $TEST_SERVICE
+          TEST_SERVICE: foobar
           SERVICE_A_URL: servicea
           SERVICE_A_PORT: 3000
           PORT: 8000
