@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: docker:1.13.1
+      - image: circleci/docker:1.13.1
     working_directory: ~/app
     steps:
       - checkout
