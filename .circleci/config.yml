@@ -8,7 +8,12 @@ jobs:
 
       - image: loffek/servicea:latest
         name: servicea
-        command: test $TEST_SERVICE = servicea || ./run.sh
+        command: |
+          if [ "${TEST_SERVICE}" == "servicea" ]; then
+            echo "I am tested. Exiting..."
+          else
+            ./run.sh
+          fi
         environment:
           PORT: 3000
         auth:
@@ -17,7 +22,6 @@ jobs:
 
       - image: loffek/serviceb:latest
         name: serviceb
-        command: test $TEST_SERVICE = serviceb || node main.js
         environment:
           SERVICE_A_URL: servicea
           SERVICE_A_PORT: 3000
