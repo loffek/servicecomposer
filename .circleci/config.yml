@@ -10,6 +10,7 @@ jobs:
         name: servicea
         command: sh -c "[[ $TEST_SERVICE == servicea ]] && echo \"I am $TEST_SERVICE. Exiting...\" || ( echo \"I am not $TEST_SERVICE\" && ./run.sh )"
         environment:
+          TEST_SERVICE: servicea
           PORT: 3000
         auth:
             username: $DOCKER_HUB_USER_ID
@@ -19,6 +20,7 @@ jobs:
         name: serviceb
         command: sh -c "[[ $TEST_SERVICE == serviceb ]] && echo \"I am $TEST_SERVICE. Exiting...\" || ( echo \"I am not $TEST_SERVICE\" && node main.js )"
         environment:
+          TEST_SERVICE: servicea
           SERVICE_A_URL: servicea
           SERVICE_A_PORT: 3000
           PORT: 8000
