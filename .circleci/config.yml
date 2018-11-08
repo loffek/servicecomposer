@@ -16,13 +16,7 @@ jobs:
 
       - image: loffek/serviceb:latest
         name: serviceb
-        command: |
-          if [ $TEST_SERVICE = serviceb ]; then
-            echo "I am the $TEST_SERVICE!"
-          else
-            echo "I am not the test service"
-            node main.js
-          fi
+        command: ["echo", $TEST_SERVICE]
         environment:
           TEST_SERVICE: foobar
           SERVICE_A_URL: servicea
