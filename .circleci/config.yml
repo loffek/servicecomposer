@@ -28,17 +28,17 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          name: Restore Yarn Package Cache
-          keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
-            - yarn-packages-
-
       - run:
           name: print dir
           command: |
             ls .
             ls ~
+
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+            - yarn-packages-
 
       - run:
           name: Install Dependencies
