@@ -9,14 +9,14 @@ jobs:
       - setup_remote_docker
 
       - run:
-        name: Pull images
-        command: |
-          docker login -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
-          docker pull $DOCKER_HUB_USER_ID/servicea:latest
-          docker pull $DOCKER_HUB_USER_ID/serviceb:latest
+          name: Pull images
+          command: |
+            docker login -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
+            docker pull $DOCKER_HUB_USER_ID/servicea:latest
+            docker pull $DOCKER_HUB_USER_ID/serviceb:latest
 
       - run:
-        name: Run integration tests
-        command: |
-          make test
+          name: Run integration tests
+          command: |
+            make test
 
