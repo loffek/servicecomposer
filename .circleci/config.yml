@@ -8,6 +8,7 @@ jobs:
 
       - image: loffek/servicea:latest
         name: servicea
+        command: bash -c "[[ ${TEST_SERVICE} == servicea ]] || echo \"I am not ${TEST_SERVICE}\" && node main.js"
         environment:
           PORT: 3000
         auth:
@@ -16,7 +17,7 @@ jobs:
 
       - image: loffek/serviceb:latest
         name: serviceb
-        command: bash -c "[[ ${TEST_SERVICE} == serviceb ]] || node main.js"
+        command: bash -c "[[ ${TEST_SERVICE} == serviceb ]] || echo \"I am not ${TEST_SERVICE}\" && node main.js"
         environment:
           SERVICE_A_URL: servicea
           SERVICE_A_PORT: 3000
