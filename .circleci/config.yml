@@ -6,7 +6,7 @@ jobs:
         environment:
           SERVICE_B_URI: http://serviceb:8000
 
-      - image: loffek/servicea:latest
+      - image: loffek/servicea:$SERVICE_A_TAG
         name: servicea
         environment:
           PORT: 3000
@@ -29,27 +29,21 @@ jobs:
       - checkout:
           path: ~/repo
 
-      #- restore_cache:
-      #    name: Restore Yarn Package Cache
-      #    keys:
-      #      - yarn-packages-{{ checksum "yarn.lock" }}
-      #      - yarn-packages-
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+            - yarn-packages-
 
       - run:
           name: Install Dependencies
           command: yarn install
 
-      - run:
-          name: debug
-          command: |
-            ls -a .
-            ls -a ~
-
-      #- save_cache:
-      #    name: Save Yarn Package Cache
-      #    key: yarn-packages-{{ checksum "yarn.lock" }}
-      #    paths:
-      #      - ~/.cache/yarn
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
 
       - run:
           name: Run integration tests
