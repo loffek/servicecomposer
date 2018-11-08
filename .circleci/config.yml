@@ -8,7 +8,7 @@ jobs:
 
       - image: loffek/servicea:latest
         name: servicea
-        command: sh -c "[ $TEST_SERVICE = servicea ] || ./run.sh"
+        command: sh -c "[ $TEST_SERVICE = servicea ] && echo \"I am $TEST_SERVICE. Exiting...\" || ( echo \"I am not $TEST_SERVICE\" && ./run.sh )"
         environment:
           TEST_SERVICE: servicea
           PORT: 3000
@@ -18,7 +18,7 @@ jobs:
 
       - image: loffek/serviceb:latest
         name: serviceb
-        command: sh -c "[ $TEST_SERVICE = serviceb ] || node main.js"
+        command: sh -c "[ $TEST_SERVICE = servicea ] && echo \"I am $TEST_SERVICE. Exiting...\" || ( echo \"I am not $TEST_SERVICE\" && node main.js )"
         environment:
           TEST_SERVICE: servicea
           SERVICE_A_URL: servicea
