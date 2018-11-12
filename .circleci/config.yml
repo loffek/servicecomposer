@@ -24,7 +24,7 @@ jobs:
             username: $DOCKER_HUB_USER_ID
             password: $DOCKER_HUB_PWD
 
-    working_directory: ~/repo/testrunner
+    working_directory: ~/repo/testrunner-server
     steps:
       - checkout:
           path: ~/repo
