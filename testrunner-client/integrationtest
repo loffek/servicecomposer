@@ -1,0 +1,108 @@
+#!/usr/bin/env python2.7
+
+from __future__ import print_function
+import argparse
+import os
+import sys
+import traceback
+import httplib
+import json
+import time
+
+GITHUB_ORG = "loffek"
+GITHUB_REPO = "servicecomposer"
+GITHUB_BRANCH = "master"
+POLL_INTERVAL_IN_SECS = 5
+TIMEOUT_IN_SECS = 600 # 10 min should be enough
+
+def test(circle_api_token, user_build_parameters):
+    print("testing...")
+    build_parameters = {
+        'CIRCLE_JOB': 'build'
+    }
+    build_parameters.update(user_build_parameters)
+
+    url = "/api/v1.1/project/github/{}/{}/tree/{}?circle-token={}".format(
+        GITHUB_ORG, GITHUB_REPO, GITHUB_BRANCH, circle_api_token
+    )
+    req_body = json.dumps({'build_parameters': build_parameters})
+    print(req_body)
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+    conn = httplib.HTTPSConnection("circleci.com")
+    conn.request('POST', url, req_body, headers)
+    response = conn.getresponse()
+    resp_body = response.read()
+    if response.status == 201:
+        resp_obj = json.loads(resp_body)
+        build_num = resp_obj['build_num']
+        return "/api/v1.1/project/github/{}/{}/{}".format(
+            GITHUB_ORG, GITHUB_REPO, build_num
+        )
+    else:
+        raise Exception("CircleCI responded with: {}".format(resp_body))
+
+def wait(circle_api_token, build_url):
+    print("waiting for {}".format(build_url))
+    url = "{}?circle-token={}".format(build_url, circle_api_token)
+    headers = {
+        "Accept": "application/json"
+    }
+    conn = httplib.HTTPSConnection("circleci.com")
+
+    now = time.time()
+    timeout = now + TIMEOUT_IN_SECS
+    i = 0
+    while time.time() < timeout:
+        i = i + 1
+        print('[Try {}] Waiting for build...'.format(i))
+        conn.request('GET', url, "", headers)
+        response = conn.getresponse()
+        resp_body = response.read()
+        if response.status == 200:
+            resp_obj = json.loads(resp_body)
+            if resp_obj['lifecycle'] == 'finished':
+                return resp_obj['status']
+            else:
+                time.sleep(POLL_INTERVAL_IN_SECS)
+        else:
+            raise Exception("CircleCI responded with: {}".format(resp_body))
+
+
+def main(circle_api_token, tag_map):
+    try:
+        build_url = test(circle_api_token, tag_map)
+        status = wait(circle_api_token, build_url)
+    except:
+        print("Could not run integration tests", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        exit(2)
+    print("Integration tests ended with status: {}".format(status))
+    if status == "success":
+        exit(0)
+    else:
+        exit(1)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Run integration tests.')
+    parser.add_argument("--token")
+    parser.add_argument("--build_parameters", nargs='+', default=[])
+
+    args = parser.parse_args()
+
+    # get --build_parameters
+    bas = {}
+    for ba in args.build_parameters:
+        try:
+            key, value = ba.split("=")
+            bas[key] = value
+        except ValueError:
+            print("--build_parameters must be supplied in the format <key>=<value>")
+            exit(1)
+
+    # get --token
+    circle_ci_token = args.token
+
+    main(circle_ci_token, bas)

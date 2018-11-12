@@ -6,15 +6,15 @@ jobs:
         environment:
           SERVICE_B_URI: http://serviceb:8000
 
-      - image: loffek/servicea:$SERVICE_A_TAG
+      - image: loffek/servicea:${SERVICE_A_TAG:-$ENVIRONMENT}
         name: servicea
         environment:
           PORT: 3000
         auth:
-            username: $DOCKER_HUB_USER_ID
-            password: $DOCKER_HUB_PWD
+          username: $DOCKER_HUB_USER_ID
+          password: $DOCKER_HUB_PWD
 
-      - image: loffek/serviceb:$SERVICE_B_TAG
+      - image: loffek/serviceb:${SERVICE_B_TAG:-$ENVIRONMENT}
         name: serviceb
         environment:
           SERVICE_A_URL: servicea
